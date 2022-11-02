@@ -1,22 +1,112 @@
 import requests
 from bs4 import BeautifulSoup
-import csv
+from datetime import date
 
-# URLs of all BU hub websites
+today = date.today().strftime("%Y-%m-%d")
+
 URL = "https://www.bu.edu/dining/location/warren/#menu"
 
 r = requests.get(URL)
-soup = BeautifulSoup(r.content, 'lxml') # If this line causes an error, run 'pip install html5lib' or install html5lib
+soup = BeautifulSoup(r.content, 'lxml')
 
-for row in soup.find('div', attrs = {'class':'menu-area-wrapper'}).find('ol', attrs = {"data-menudate":"2022-10-31"}).find('li', attrs = {"id":"2022-10-31-breakfast"}).find('ol', attrs = {"class":"menu-dishes"}):
-  menu = row.find('li', attrs = 'menu-item menu-main menu-has-warning').text
+breakfast_tags = soup.find('div', attrs={
+  'class': 'menu-area-wrapper'
+}).find('ol', attrs={
+  "data-menudate": f"{today}"
+}).find('li', attrs={
+  "id": f"{today}-breakfast"
+}).find('ol', attrs={
+  "class": "menu-dishes"
+}).findAll('li', attrs={'class': 'menu-item menu-main menu-has-warning'})
 
-# .find('li', attrs = {"id":"2022-10-31-breakfast"})
+lunch_tags = soup.find('div', attrs={
+  'class': 'menu-area-wrapper'
+}).find('ol', attrs={
+  "data-menudate": f"{today}"
+}).find('li', attrs={
+  "id": f"{today}-lunch"
+}).find('ol', attrs={
+  "class": "menu-dishes"
+}).findAll('li', attrs={'class': 'menu-item menu-main menu-has-warning'})
 
+dinner_tags = soup.find('div', attrs={
+  'class': 'menu-area-wrapper'
+}).find('ol', attrs={
+  "data-menudate": f"{today}"
+}).find('li', attrs={
+  "id": f"{today}-dinner"
+}).find('ol', attrs={
+  "class": "menu-dishes"
+}).findAll('li', attrs={'class': 'menu-item menu-main menu-has-warning'})
 
+for row in breakfast_tags:
+  try:
+    menu_title = row.find('div',
+                          attrs={
+                            "class": "menu-item-wrapper main-with-nutrition"
+                          }).find('h4',
+                                  attrs={
+                                    "class":
+                                    "js-nutrition-open-alias menu-item-title"
+                                  }).text
+    menu_descript = row.find('div',
+                             attrs={
+                               "class": "menu-item-wrapper main-with-nutrition"
+                             }).find('p', attrs={
+                               "class": "menu-description"
+                             }).text.strip()
+  except AttributeError:
+    pass
+  print(menu_title)
+  print(menu_descript)
+  print("")
 
+for row in lunch_tags:
+  try:
+    table = {}
+    menu_title = row.find('div',
+                          attrs={
+                            "class": "menu-item-wrapper main-with-nutrition"
+                          }).find('h4',
+                                  attrs={
+                                    "class":
+                                    "js-nutrition-open-alias menu-item-title"
+                                  }).text
+    menu_descript = row.find('div',
+                             attrs={
+                               "class": "menu-item-wrapper main-with-nutrition"
+                             }).find('p', attrs={
+                               "class": "menu-description"
+                             }).text.strip()
+    table['title'] = menu_title
+    table['description'] = menu_descript
+  except AttributeError:
+    pass
+  print(menu_title)
+  print(menu_descript)
+  print("")
 
-
+for row in dinner_tags:
+  try:
+    menu_title = row.find('div',
+                          attrs={
+                            "class": "menu-item-wrapper main-with-nutrition"
+                          }).find('h4',
+                                  attrs={
+                                    "class":
+                                    "js-nutrition-open-alias menu-item-title"
+                                  }).text
+    menu_descript = row.find('div',
+                             attrs={
+                               "class": "menu-item-wrapper main-with-nutrition"
+                             }).find('p', attrs={
+                               "class": "menu-description"
+                             }).text.strip()
+  except AttributeError:
+    pass
+  print(menu_title)
+  print(menu_descript)
+  print("")
 
 # # Iterate each URL
 # for i in range(len(URLS)):
@@ -37,7 +127,7 @@ for row in soup.find('div', attrs = {'class':'menu-area-wrapper'}).find('ol', at
 #       # Add title to the dictionary 'table'
 #       table['title'] = title
 #       units = row.find('ul', attrs = 'cf-hub-offerings')
-#       # Add courses 
+#       # Add courses
 #       for li in units.find_all("li"):
 #         course_units += li.text + '&' # Use & to seperate the unit values
 #       table['units'] = course_units[:-1] # Add the units except the last '&' value
@@ -53,7 +143,6 @@ for row in soup.find('div', attrs = {'class':'menu-area-wrapper'}).find('ol', at
 #         for unit in unit_list:
 #           w.writerow(unit)
 
-          
 # #import pandas module
 # import pandas as pd
 # #read the csv file into a dataframe
@@ -71,6 +160,6 @@ for row in soup.find('div', attrs = {'class':'menu-area-wrapper'}).find('ol', at
 # for file in csv_files:
 #             df_temp = pd.read_csv(file)
 #             df_append = df_append.append(df_temp, ignore_index=True)
-  
+
 # #Save the combined csv file to 'downloads'
 # df_append.to_csv('/Users/minseoklee/Downloads/Combined_files.csv')
